@@ -5,6 +5,18 @@ const PORT = 3000;
 const app = new Application();
 
 app.use(router.routes());
+
+app.use(async (context, next) => {
+  try {
+    await context.send({
+      root: `${Deno.cwd()}/static`,
+      index: 'index.html'
+    });
+  } catch (error) {
+    await next();
+  }
+});
+
 app.use(router.allowedMethods());
 
 console.log(`Server is running on port ${PORT}`);
