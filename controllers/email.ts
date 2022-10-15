@@ -10,7 +10,7 @@ interface User {
 
 const { SENDINBLUE_API_KEY } = config();
 
-export const verifyEmail = async (user: User) => {
+export const sendEmail = async (user: User) => {
   const jwt = await create({ alg: 'HS512', typ: 'JWT' }, { email: user.email }, key);
   const res = await fetch('https://api.sendinblue.com/v3/smtp/email', {
     method: 'POST',

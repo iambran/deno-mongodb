@@ -1,6 +1,8 @@
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
-import { verifyEmail } from './email.ts';
+import { key } from "../utils/apiKey.ts";
+import { decode } from "https://deno.land/x/djwt@v2.7/mod.ts";
+import { sendEmail } from './email.ts';
 
 const { DATA_API_KEY, APP_ID } = config();
 
@@ -54,7 +56,7 @@ export const signup = async ({ request, response }: { request: any; response: an
       const dataResponse = await fetch(URI, options);
       const { insertedId } = await dataResponse.json();
 
-      const emailSent = await verifyEmail(user);
+      const emailSent = await sendEmail(user);
 
       console.log(emailSent);
 
@@ -70,6 +72,52 @@ export const signup = async ({ request, response }: { request: any; response: an
           success: false,
           message: '无法验证您的邮件，请稍后再试！'
         }
+      }
+    }
+  } catch (error) {
+    response.body = {
+      success: false,
+      message: error.toString()
+    }
+  }
+}
+
+export const verifyEmail = async ({ request, response }: { request: any; response: any }) => {
+  try {
+    if (!request.hasBody) {
+      response.status = 400;
+      response.body = {
+        success: false,
+        message: 'No data'
+      }
+    } else {
+      const body = await request.body();
+      const { token } = await body.value;
+      console.log(token);
+      const [header, payload, signature] = await decode(token, key);
+      console.log(payload);
+
+      const URI = `${BASE_URI}/updateOne`;
+      const query = {
+        ...base_query,
+        filter: {
+          email: payload.email
+        },
+        update: {
+          $set: {
+            verified: true
+          }
+        }
+      }
+
+      options.body = JSON.stringify(query);
+      const updateResponse = await fetch(URI, options);
+      const updateData = await updateResponse.json();
+      console.log(updateData);
+      response.status = 200;
+      response.body = {
+        success: true,
+        updateData
       }
     }
   } catch (error) {

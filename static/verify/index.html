@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Email Address</title>
+  <style>
+    /* @import url("https://fonts.googleapis.com/css?family=Lato:400,400i,700"); */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Lato, sans-serif;
+      background: lightseagreen;
+      padding-block: 20vh;
+      display: grid;
+      place-content: center;
+      height: 100vh;
+    }
+
+    .loader {
+      width: 50px;
+      height: 50px;
+      border-width: 4px;
+      border-style: solid;
+      border-color: rgba(0,0,0,0.4) rgba(0,0,0,0.4) rgba(0,0,0,0.2) rgba(0,0,0,0.2);
+      border-radius: 50%;
+      animation: rotate 1s linear infinite;
+      transition: .3s ease-in;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader" aria-hidden="true"></div>
+
+  <script>
+    window.onload = () => {
+      const token = (new URLSearchParams(location.search)).get('token');
+      console.log(token);
+      fetch('/api/users/signup/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token })
+      })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+        location.href = '/';
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+    }
+  </script>
+</body>
+</html>

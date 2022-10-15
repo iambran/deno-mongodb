@@ -8,7 +8,7 @@ import {
   getIncompleteTodos
 } from "../controllers/todos.ts";
 
-import { signup } from "../controllers/users.ts";
+import { signup, verifyEmail } from "../controllers/users.ts";
 
 const router = new Router();
 
@@ -20,6 +20,8 @@ router
   .put('/api/todos/:id', updateTodo)
   .delete('/api/todos/:id', deleteTodo);
 
-router.post('/api/users/signup', signup);
+router
+  .post('/api/users/signup', signup)
+  .post('/api/users/signup/verify', verifyEmail);
 
 export default router;
