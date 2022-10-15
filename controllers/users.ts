@@ -1,5 +1,6 @@
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
+import { verifyEmail } from './email.ts';
 
 const { DATA_API_KEY, APP_ID } = config();
 
@@ -52,11 +53,23 @@ export const signup = async ({ request, response }: { request: any; response: an
       options.body = JSON.stringify(query);
       const dataResponse = await fetch(URI, options);
       const { insertedId } = await dataResponse.json();
-      response.status = 201;
-      response.body = {
-        success: true,
-        user: user.fullname,
-        insertedId
+
+      const emailSent = await verifyEmail(user);
+
+      console.log(emailSent);
+
+      if (emailSent) {
+        response.status = 201;
+        response.body = {
+          success: true,
+          email: user.email,
+        }
+      } else {
+        response.status = 500; // 这里的代码我不是很确定
+        response.body = {
+          success: false,
+          message: '无法验证您的邮件，请稍后再试！'
+        }
       }
     }
   } catch (error) {
